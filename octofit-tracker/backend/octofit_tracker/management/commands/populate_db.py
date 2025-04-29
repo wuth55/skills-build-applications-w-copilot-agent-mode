@@ -1,8 +1,11 @@
+import json
+from django.conf import settings
+import os
 from django.core.management.base import BaseCommand
 from octofit_tracker.models import User, Team, Activity, Leaderboard, Workout
 
 class Command(BaseCommand):
-    help = 'Populate the database with test data'
+    help = 'Populate the database with test data from test_data.json'
 
     def handle(self, *args, **kwargs):
         # Clear existing data
@@ -12,24 +15,37 @@ class Command(BaseCommand):
         Leaderboard.objects.all().delete()
         Workout.objects.all().delete()
 
-        # Create test users
-        user1 = User.objects.create(username='john_doe', email='john@example.com', password='password123')
-        user2 = User.objects.create(username='jane_doe', email='jane@example.com', password='password123')
+        # Load test data from JSON
+        test_data_path = os.path.join(settings.BASE_DIR, 'octofit_tracker', 'test_data.json')
+        with open(test_data_path, 'r') as f:
+            data = json.load(f)
 
-        # Create test teams
-        team1 = Team.objects.create(name='Team Alpha')
-        team1.members.add(user1, user2)
+        # Create users
+        email_to_user = {}
+        for u in data['users']:
+            user = User.objects.create(username=u['username'], email=u['email'], password=u['password'])
+            email_to_user[u['email']] = user
 
-        # Create test activities
-        Activity.objects.create(user=user1, activity_type='Running', duration='00:30:00')
-        Activity.objects.create(user=user2, activity_type='Cycling', duration='01:00:00')
+        # Create teams
+        for t in data['teams']:
+            team = Team.objects.create(name=t['name'])
+            members = [email_to_user[email] for email in t['members'] if email in email_to_user]
+            team.members.set(members)
 
-        # Create test leaderboard entries
-        Leaderboard.objects.create(user=user1, score=150)
-        Leaderboard.objects.create(user=user2, score=200)
+        # Create activities
+        for a in data['activity']:
+            user = email_to_user.get(a['user'])
+            if user:
+                Activity.objects.create(user=user, activity_type=a['activity_type'], duration=f"00:{a['duration']:02}:00")
 
-        # Create test workouts
-        Workout.objects.create(name='Push-ups', description='Do 20 push-ups')
-        Workout.objects.create(name='Sit-ups', description='Do 30 sit-ups')
+        # Create leaderboard
+        for l in data['leaderboard']:
+            user = email_to_user.get(l['user'])
+            if user:
+                Leaderboard.objects.create(user=user, score=l['score'])
 
-        self.stdout.write(self.style.SUCCESS('Successfully populated the database with test data'))
+        # Create workouts
+        for w in data['workouts']:
+            Workout.objects.create(name=w['name'], description=w['description'])
+
+        self.stdout.write(self.style.SUCCESS('Successfully populated the database with test data from test_data.json'))

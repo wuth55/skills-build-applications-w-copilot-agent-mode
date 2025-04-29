@@ -1,6 +1,8 @@
 from django.test import TestCase
 from .models import User, Team, Activity, Leaderboard, Workout
 
+# Test cases for User, Team, Activity, Leaderboard, and Workout models
+
 class UserModelTest(TestCase):
     def test_user_creation(self):
         user = User.objects.create(username="testuser", email="test@example.com", password="password123")

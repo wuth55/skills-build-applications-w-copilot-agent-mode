@@ -1,0 +1,21 @@
+{
+  "users": [
+    {"username": "octo_student1", "email": "octo1@mergington.edu", "password": "testpass1"},
+    {"username": "octo_student2", "email": "octo2@mergington.edu", "password": "testpass2"}
+  ],
+  "teams": [
+    {"name": "Octo Athletes", "members": ["octo1@mergington.edu", "octo2@mergington.edu"]}
+  ],
+  "activity": [
+    {"user": "octo1@mergington.edu", "activity_type": "Running", "duration": 30},
+    {"user": "octo2@mergington.edu", "activity_type": "Walking", "duration": 45}
+  ],
+  "leaderboard": [
+    {"user": "octo1@mergington.edu", "score": 100},
+    {"user": "octo2@mergington.edu", "score": 80}
+  ],
+  "workouts": [
+    {"name": "Push-ups", "description": "Do 20 push-ups"},
+    {"name": "Sit-ups", "description": "Do 30 sit-ups"}
+  ]
+}
